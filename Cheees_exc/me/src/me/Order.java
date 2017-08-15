@@ -1,26 +1,46 @@
 package me;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
+enum TypeOrder {
+	BUY, SELL
+}
 public class Order {
-	private double price; // цена
+	private BigDecimal price; // цена
 	private int qty; // количество
 	private int userId; // ИД клиента
 	private final int orderId;// ИД заявки
-	Date temestamp; // время поступления заявки
+	Date timestamp; // время поступления заявки
 	private int squenceNumber;
-
-	public Order(double price, int gty, int userId, int orderId) {
+	private TypeOrder type;
+	public Order(BigDecimal price, int qty, int userId, int orderId, int sqNum, String type) {
 		this.orderId = orderId;
+		this.price=price;
+		this.qty=qty;
+		this.userId=userId;
+		squenceNumber=sqNum;
+		timestamp = new Date();
+		this.type=TypeOrder.valueOf(type);
 	}
 
 
-	public double getPrice() {
+	public TypeOrder getType() {
+		return type;
+	}
+
+
+	public void setType(TypeOrder type) {
+		this.type = type;
+	}
+
+
+	public BigDecimal getPrice() {
 		return price;
 	}
 
 
-	public void setPrice(double price) {
+	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
 
@@ -45,17 +65,17 @@ public class Order {
 	}
 
 
-	public Date getTemestamp() {
-		return temestamp;
+	public Date getTimestamp() {
+		return timestamp;
 	}
 
 
-	public void setTemestamp(Date temestamp) {
-		this.temestamp = temestamp;
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
 	}
 
 
-	public int getSquenceNumber() {
+	public Integer getSquenceNumber() {
 		return squenceNumber;
 	}
 
@@ -69,24 +89,21 @@ public class Order {
 		return orderId;
 	}
 
-
+	
 	@Override
 	public String toString() {
-		return "Order [price=" + price + ", qty=" + qty + ", userId=" + userId + ", orderId=" + orderId
-				+ ", temestamp=" + temestamp + "]";
+		return "Order [price=" + price + ", qty=" + qty + ", userId=" + userId + ", orderId=" + orderId + ", temestamp="
+				+ timestamp + ", squenceNumber=" + squenceNumber + "]";
 	}
 
-	public void Amend(double price, int gty){
-		try{
-			setQty(Qty);
-		setPrice(price);
-		}
-		
-	 }
-	
-	class IncorrectDataException extends Exception {
-	
-	}
 
+	public void Amend(BigDecimal price){
+		this.price=price;
+		timestamp = new Date();
+	}
+	public void Amend(int qty){
+		this.qty=qty;
+		timestamp = new Date();
+	}
 }
 
