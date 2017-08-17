@@ -90,8 +90,8 @@ public class Order {
 	
 	@Override
 	public String toString() {
-		return "Order [price=" + price + ", qty=" + qty + ", userId=" + userId + ", orderId=" + orderId + ", temestamp="
-				+ timestamp + ", squenceNumber=" + squenceNumber + "]";
+		return "Order: price=" + price + ", qty=" + qty + ", userId=" + userId + ", orderId=" + orderId + ", temestamp="
+				+ timestamp + ", squenceNumber=" + squenceNumber;
 	}
 }
 
