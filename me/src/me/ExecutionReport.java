@@ -13,7 +13,9 @@ import java.math.BigDecimal;
 			switch (tag) {
 			case 0:	executionReport="New";
 			break;
-			case 4: executionReport="Canceled";
+			case 1: executionReport="Canceled";
+			break;
+			case 2: executionReport="Canceled";
 			break;
 			}
 		}

@@ -8,7 +8,7 @@ public class TestJunit {
 
 	@Test
 	   public void testOrder () {
-		Book book=new Book();
+		Book book=new Book(1);
 		Order orderBuy =new Order(new BigDecimal(5007), 1000, 2, 0, 3, SideType.BUY);
 		for (ExecutionReport s : book.process(orderBuy))
 		System.out.println(s.getExecutionReport());		

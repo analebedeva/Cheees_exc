@@ -37,7 +37,7 @@ public class Book {
 			bid.remove(bid.indexOf(order));
 		else
 			ask.remove(ask.indexOf(order));
-		reportList.add(new ExecutionReport(order, 4));
+		reportList.add(new ExecutionReport(order, 1));
 	}
 
 	public ArrayList<ExecutionReport> process(Order order) {
@@ -52,7 +52,7 @@ public class Book {
 			reportList.add(new ExecutionReport(order, 0));
 			if (ask.size() != 0) {
 				for (int i = 0; i <= index; i++) {
-					work(bid.get(i), i, ask);
+					work(bid.get(i),ask);
 				}
 			}
 		} else {
@@ -62,14 +62,14 @@ public class Book {
 			reportList.add(new ExecutionReport(order, 0));
 			if (bid.size() != 0) {
 				for (int i = 0; i <= index; i++) {
-					work(ask.get(i), i, bid);
+					work(ask.get(i), bid);
 				}
 			}
 		}
 		return reportList;
 	}
 
-	private void work(Order order, int index, ArrayList<Order> list) {
+	private void work(Order order, ArrayList<Order> list) {
 		int remain;
 		Order seller;
 		Order buyer;
