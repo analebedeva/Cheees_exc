@@ -10,56 +10,63 @@ public class Book {
 	private ArrayList<ExecutionReport> reportList;
 	private int instrumentId;
 
-	Book (int instrumentId){
-		this.instrumentId=instrumentId;
+	Book(int instrumentId) {
+		this.instrumentId = instrumentId;
 	}
+
 	public int getInstrumentId() {
 		return instrumentId;
 	}
 
-	public void setInstrumentId(int instrumentId) {
-		this.instrumentId = instrumentId;
-	}
-
-	public void amend(Order order, BigDecimal price) {
-		order.setPrice(price);
-		order.setTimestamp(new Date());
-	}
-
-	public void amend(Order order, int qty) {
-		if (order.getQty() < qty)
+	public void amend(int orderId, BigDecimal price) {
+		Order order = searchOrder(orderId);
+		if (order.getQty() != 0) {
+			order.setPrice(price);
 			order.setTimestamp(new Date());
-		order.setQty(qty);
+		}
 	}
 
-	public void cancel(Order order) {
-		if (order.getType() == SideType.BUY)
-			bid.remove(bid.indexOf(order));
-		else
-			ask.remove(ask.indexOf(order));
-		reportList.add(new ExecutionReport(order, 1));
+	public void amend(int orderId, int qty) {
+		Order order = searchOrder(orderId);
+		if (order.getQty() != 0) {
+			if (order.getQty() < qty)
+				order.setTimestamp(new Date());
+			order.setQty(qty);
+		}
+	}
+
+	public void cancel(int orderId) {
+
+		Order order = searchOrder(orderId);
+		if (order.getQty() != 0) {
+			if (order.getType() == SideType.BUY)
+				bid.remove(bid.indexOf(order));
+			else
+				ask.remove(ask.indexOf(order));
+			reportList.add(new ExecutionReport(order, ExecutionReportType.CANCELED));
+		}
 	}
 
 	public ArrayList<ExecutionReport> process(Order order) {
 		reportList = new ArrayList<>();
 		int index;
-		Comparator<Order> bcomp = new BuyPriceComparator().thenComparing(new SquenceNumberComparator());
-		Comparator<Order> scomp = new SellPriceComparator().thenComparing(new SquenceNumberComparator());
+		Comparator<Order> bcomp = new BuyPriceComparator().thenComparing(new SequenceNumberComparator());
+		Comparator<Order> scomp = new SellPriceComparator().thenComparing(new SequenceNumberComparator());
 		if (order.getType() == SideType.BUY) {
 			index = Collections.binarySearch(bid, order, bcomp);
 			index = Math.abs(index) - 1;
 			bid.add(index, order);
-			reportList.add(new ExecutionReport(order, 0));
+			reportList.add(new ExecutionReport(order, ExecutionReportType.NEW));
 			if (ask.size() != 0) {
 				for (int i = 0; i <= index; i++) {
-					work(bid.get(i),ask);
+					work(bid.get(i), ask);
 				}
 			}
 		} else {
 			index = Collections.binarySearch(ask, order, scomp);
 			index = Math.abs(index) - 1;
 			ask.add(index, order);
-			reportList.add(new ExecutionReport(order, 0));
+			reportList.add(new ExecutionReport(order, ExecutionReportType.NEW));
 			if (bid.size() != 0) {
 				for (int i = 0; i <= index; i++) {
 					work(ask.get(i), bid);
@@ -67,6 +74,20 @@ public class Book {
 			}
 		}
 		return reportList;
+	}
+
+	private Order searchOrder(int orderId) {
+		if (ask.size() != 0) {
+			for (int i = 0; i < ask.size(); i++)
+				if (ask.get(i).getOrderId() == orderId)
+					return ask.get(i);
+		}
+		if (bid.size() != 0) {
+			for (int i = 0; i < bid.size(); i++)
+				if (bid.get(i).getOrderId() == orderId)
+					return bid.get(i);
+		}
+		return new Order(null, 0, 0, 0, 0, null);
 	}
 
 	private void work(Order order, ArrayList<Order> list) {
@@ -86,28 +107,32 @@ public class Book {
 					remain = buyer.getQty() - seller.getQty();
 					if (remain < 0) {
 						remain = Math.abs(remain);
-						reportList.add(new ExecutionReport(buyer, seller.getPrice(), seller.getUserId()));
-						reportList
-								.add(new ExecutionReport(seller, seller.getPrice(), buyer.getQty(), buyer.getUserId()));
+						reportList.add(new ExecutionReport(buyer, seller.getPrice(), buyer.getQty(), seller.getUserId(),
+								ExecutionReportType.TRADE_FULL_FILL));
+						reportList.add(new ExecutionReport(seller, seller.getPrice(), buyer.getQty(), buyer.getUserId(),
+								ExecutionReportType.TRADE_FILL));
 						seller.setQty(remain);
-						cancel(buyer);
+						cancel(buyer.getOrderId());
 						break;
 					} else if (remain == 0) {
-						reportList.add(new ExecutionReport(buyer, seller.getPrice(), seller.getUserId()));
-						reportList.add(new ExecutionReport(seller, seller.getPrice(), buyer.getUserId()));
-						cancel(seller);
-						cancel(buyer);
+						reportList.add(new ExecutionReport(buyer, seller.getPrice(), buyer.getQty(), seller.getUserId(),
+								ExecutionReportType.TRADE_FULL_FILL));
+						reportList.add(new ExecutionReport(seller, seller.getPrice(), seller.getQty(),
+								buyer.getUserId(), ExecutionReportType.TRADE_FULL_FILL));
+						cancel(seller.getOrderId());
+						cancel(buyer.getOrderId());
 						break;
 					} else {
-						reportList.add(
-								new ExecutionReport(buyer, seller.getPrice(), seller.getQty(), seller.getUserId()));
-						reportList.add(new ExecutionReport(seller, seller.getPrice(), buyer.getUserId()));
-						cancel(seller);
-						amend(buyer, remain);
+						reportList.add(new ExecutionReport(buyer, seller.getPrice(), seller.getQty(),
+								seller.getUserId(), ExecutionReportType.TRADE_FILL));
+						reportList.add(new ExecutionReport(seller, seller.getPrice(), seller.getQty(),
+								buyer.getUserId(), ExecutionReportType.TRADE_FULL_FILL));
+						cancel(seller.getOrderId());
+						amend(buyer.getOrderId(), remain);
 						i--;
 						break;
 					}
-					
+
 				}
 			}
 		}
@@ -128,9 +153,9 @@ class BuyPriceComparator implements Comparator<Order> {
 	}
 }
 
-class SquenceNumberComparator implements Comparator<Order> {
+class SequenceNumberComparator implements Comparator<Order> {
 	@Override
 	public int compare(Order o1, Order o2) {
-		return o1.getSquenceNumber().compareTo(o2.getSquenceNumber());
+		return o1.getSequenceNumber().compareTo(o2.getSequenceNumber());
 	}
 }

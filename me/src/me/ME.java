@@ -1,30 +1,24 @@
 package me;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ME {
-	private ArrayList<Book> bookList = new ArrayList<>();
+	Map<Integer, Book> hashmap = new HashMap<>();
+	private int sequenceNumber = 0;
 
-	 ArrayList<ExecutionReport> addOrder(Order order, int instrumentId) {
-		if (checkOrder(order)) {
-			if (bookList.size() != 0) {
-				for (int i = 0; i < bookList.size(); i++)
-					if (instrumentId == bookList.get(i).getInstrumentId())
-						return bookList.get(i).process(order);
-			}
-			Book book = new Book(instrumentId);
-			bookList.add(book);
-			return book.process(order);
-		} else {
-			ArrayList<ExecutionReport> rejectReport = new ArrayList<ExecutionReport>();
-			rejectReport.add(new ExecutionReport(order, 2));
-			return rejectReport;
+	public void createOrder(BigDecimal price, int qty, int userId, int orderId, SideType type, int instrumentId) {
+		if (qty > 0 && price.signum() > 0) {
+			addOrder(new Order(price, qty, userId, orderId, sequenceNumber, type), instrumentId);
 		}
+		sequenceNumber++;
 	}
 
-	private boolean checkOrder(Order order) {
-		if (order.getQty()>0 && order.getPrice().signum()==1) 
-			return true;
-		return false;
+	private ArrayList<ExecutionReport> addOrder(Order order, int instrumentId) {
+		if (!hashmap.containsKey(instrumentId))
+			hashmap.put(instrumentId, new Book(instrumentId));
+		return hashmap.get(instrumentId).process(order);
 	}
 }

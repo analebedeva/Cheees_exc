@@ -10,14 +10,15 @@ public class Order {
 	private int userId; // ИД клиента
 	private final int orderId;// ИД заявки
 	private Date timestamp; // время поступления заявки
-	private int squenceNumber;
+	private int sequenceNumber;
 	private SideType type;
+
 	public Order(BigDecimal price, int qty, int userId, int orderId, int sqNum, SideType type) {
 		this.orderId = orderId;
-		this.price=price.setScale(1, BigDecimal.ROUND_HALF_UP);
+		this.price=price;
 		this.qty=qty;
 		this.userId=userId;
-		squenceNumber=sqNum;
+		sequenceNumber=sqNum;
 		timestamp = new Date();
 		this.type=type;
 	}
@@ -73,13 +74,13 @@ public class Order {
 	}
 
 
-	public Integer getSquenceNumber() {
-		return squenceNumber;
+	public Integer getSequenceNumber() {
+		return sequenceNumber;
 	}
 
 
-	public void setSquenceNumber(int squenceNumber) {
-		this.squenceNumber = squenceNumber;
+	public void setSequenceNumber(int squenceNumber) {
+		this.sequenceNumber = squenceNumber;
 	}
 
 
@@ -91,7 +92,7 @@ public class Order {
 	@Override
 	public String toString() {
 		return "Order: price=" + price + ", qty=" + qty + ", userId=" + userId + ", orderId=" + orderId + ", temestamp="
-				+ timestamp + ", squenceNumber=" + squenceNumber;
+				+ timestamp + ", sequenceNumber=" + sequenceNumber;
 	}
 }
 
