@@ -23,6 +23,9 @@ public class ExecutionReport {
 		userId = order.getUserId();
 		this.execType = execType;
 	}
+	public ExecutionReport(ExecutionReportType execType) {
+		this.execType = execType;
+	}
 
 	public int getOrderId() {
 		return orderId;

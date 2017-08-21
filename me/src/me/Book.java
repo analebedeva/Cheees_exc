@@ -8,7 +8,7 @@ public class Book {
 	private ArrayList<Order> bid = new ArrayList<>();
 	private ArrayList<Order> ask = new ArrayList<>();
 	private ArrayList<ExecutionReport> reportList;
-	private int instrumentId;
+	private final int instrumentId;
 
 	Book(int instrumentId) {
 		this.instrumentId = instrumentId;
@@ -18,24 +18,35 @@ public class Book {
 		return instrumentId;
 	}
 
-	public void amend(int orderId, BigDecimal price) {
+	public ArrayList<ExecutionReport> amend(int orderId, BigDecimal price, int sequenceNumber) {
+		ArrayList<ExecutionReport> listReports=new ArrayList<>();
 		Order order = searchOrder(orderId);
 		if (order.getQty() != 0) {
 			order.setPrice(price);
 			order.setTimestamp(new Date());
+			order.setSequenceNumber(sequenceNumber);
+			listReports.add(new ExecutionReport(order, ExecutionReportType.AMENDED));
 		}
+		listReports.add(new ExecutionReport(ExecutionReportType.REJECTED));
+		return listReports;
 	}
 
-	public void amend(int orderId, int qty) {
+	public ArrayList<ExecutionReport> amend(int orderId, int qty, int sequenceNumber) {
+		ArrayList<ExecutionReport> listReports=new ArrayList<>();
 		Order order = searchOrder(orderId);
 		if (order.getQty() != 0) {
-			if (order.getQty() < qty)
+			if (order.getQty() < qty) {
 				order.setTimestamp(new Date());
+				order.setSequenceNumber(sequenceNumber);
+				}
 			order.setQty(qty);
+			listReports.add(new ExecutionReport(order, ExecutionReportType.AMENDED));
 		}
+		listReports.add(new ExecutionReport(ExecutionReportType.REJECTED));
+		return listReports;
 	}
 
-	public void cancel(int orderId) {
+	public ExecutionReport cancel(int orderId) {
 
 		Order order = searchOrder(orderId);
 		if (order.getQty() != 0) {
@@ -43,8 +54,9 @@ public class Book {
 				bid.remove(bid.indexOf(order));
 			else
 				ask.remove(ask.indexOf(order));
-			reportList.add(new ExecutionReport(order, ExecutionReportType.CANCELED));
+			return new ExecutionReport(order, ExecutionReportType.CANCELED);
 		}
+		else return new ExecutionReport(ExecutionReportType.REJECTED);
 	}
 
 	public ArrayList<ExecutionReport> process(Order order) {
@@ -76,7 +88,7 @@ public class Book {
 		return reportList;
 	}
 
-	private Order searchOrder(int orderId) {
+	 Order searchOrder(int orderId) {
 		if (ask.size() != 0) {
 			for (int i = 0; i < ask.size(); i++)
 				if (ask.get(i).getOrderId() == orderId)
@@ -128,7 +140,7 @@ public class Book {
 						reportList.add(new ExecutionReport(seller, seller.getPrice(), seller.getQty(),
 								buyer.getUserId(), ExecutionReportType.TRADE_FULL_FILL));
 						cancel(seller.getOrderId());
-						amend(buyer.getOrderId(), remain);
+						buyer.setQty(remain);
 						i--;
 						break;
 					}

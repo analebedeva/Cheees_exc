@@ -1,24 +1,20 @@
 package me;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 public class ME {
-	Map<Integer, Book> hashmap = new HashMap<>();
-	private int sequenceNumber = 0;
+	Map<Integer, Book> books = new HashMap<>();
+	Queue<ExecutionReport> reports = new PriorityBlockingQueue<>();
 
-	public void createOrder(BigDecimal price, int qty, int userId, int orderId, SideType type, int instrumentId) {
-		if (qty > 0 && price.signum() > 0) {
-			addOrder(new Order(price, qty, userId, orderId, sequenceNumber, type), instrumentId);
-		}
-		sequenceNumber++;
-	}
-
-	private ArrayList<ExecutionReport> addOrder(Order order, int instrumentId) {
-		if (!hashmap.containsKey(instrumentId))
-			hashmap.put(instrumentId, new Book(instrumentId));
-		return hashmap.get(instrumentId).process(order);
+	public void process(Request request) {
+		if (books.containsKey(request.getInstrumentId())) {
+		reports.addAll(request.process(books.get(request.getInstrumentId())));
+			
+		} else
+			reports.offer(new ExecutionReport(ExecutionReportType.REJECTED));
 	}
 }
