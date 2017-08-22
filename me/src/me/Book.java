@@ -21,7 +21,7 @@ public class Book {
 	public ArrayList<ExecutionReport> amend(int orderId, BigDecimal price, int sequenceNumber) {
 		ArrayList<ExecutionReport> listReports=new ArrayList<>();
 		Order order = searchOrder(orderId);
-		if (order.getQty() != 0) {
+		if (order.getQty() != 0 && sequenceNumber>order.getSequenceNumber()) {
 			order.setPrice(price);
 			order.setTimestamp(new Date());
 			order.setSequenceNumber(sequenceNumber);
@@ -35,7 +35,7 @@ public class Book {
 		ArrayList<ExecutionReport> listReports=new ArrayList<>();
 		Order order = searchOrder(orderId);
 		if (order.getQty() != 0) {
-			if (order.getQty() < qty) {
+			if (order.getQty() < qty  && sequenceNumber>order.getSequenceNumber()) {
 				order.setTimestamp(new Date());
 				order.setSequenceNumber(sequenceNumber);
 				}

@@ -15,7 +15,7 @@ public interface Request {
 	int getOrderId();
 
 	int getUserId();
-	
+
 	ArrayList<ExecutionReport> process(Book book);
 }
 
@@ -92,8 +92,14 @@ class NewRequest implements Request {
 
 	@Override
 	public ArrayList<ExecutionReport> process(Book book) {
-		Order order =new Order(price, qty, userId,orderId,sequenceNumber,  type);
+		if (qty > 0 && price.signum() == 1) {
+			Order order = new Order(price, qty, userId, orderId, sequenceNumber, type);
 			return book.process(order);
+		} else {
+			ArrayList<ExecutionReport> listReports = new ArrayList<>();
+			listReports.add(new ExecutionReport(ExecutionReportType.REJECTED));
+			return listReports;
+		}
 	}
 
 }
@@ -137,7 +143,7 @@ class CancelRequest implements Request {
 	public ArrayList<ExecutionReport> process(Book book) {
 		ArrayList<ExecutionReport> listReports = new ArrayList<>();
 		listReports.add(book.cancel(getOrderId()));
-return listReports;
+		return listReports;
 	}
 }
 
@@ -207,14 +213,14 @@ class AmendRequest implements Request {
 	public ArrayList<ExecutionReport> process(Book book) {
 		ArrayList<ExecutionReport> listReports = new ArrayList<>();
 		Order order = book.searchOrder(getOrderId());
-		if (order.getQty() != 0) {
-			if (order.getPrice().compareTo(getPrice()) != 0) 
-					listReports.addAll(book.amend(getOrderId(), getPrice(),getSequenceNumber()));
-			if (order.getQty() != getQty()) 
-				listReports.addAll(book.amend(getOrderId(),getQty(),getSequenceNumber()));
-
-			}  else listReports.add(new ExecutionReport(ExecutionReportType.REJECTED));
-return listReports;
+		if (qty > 0 && price.signum() == 1) {
+				if (order.getPrice().compareTo(getPrice()) != 0)
+					listReports.addAll(book.amend(getOrderId(), getPrice(), getSequenceNumber()));
+				if (order.getQty() != getQty())
+					listReports.addAll(book.amend(getOrderId(), getQty(), getSequenceNumber()));
+		} else
+			listReports.add(new ExecutionReport(ExecutionReportType.REJECTED));
+		return listReports;
 
 	}
 
