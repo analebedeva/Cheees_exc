@@ -9,9 +9,11 @@ public class Book {
 	private ArrayList<Order> ask = new ArrayList<>();
 	private ArrayList<ExecutionReport> reportList;
 	private final int instrumentId;
+	private ReferenceData referenceData=new ReferenceData();
 
-	Book(int instrumentId) {
+	Book(int instrumentId, ReferenceData referenceData) {
 		this.instrumentId = instrumentId;
+		this.referenceData=referenceData;
 	}
 
 	public int getInstrumentId() {

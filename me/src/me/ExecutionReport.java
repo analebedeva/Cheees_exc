@@ -3,6 +3,12 @@ package me;
 import java.math.BigDecimal;
 
 public class ExecutionReport {
+	@Override
+	public String toString() {
+		return "ExecutionReport [orderId=" + orderId + ", userId=" + userId + ", contrUserId=" + contrUserId
+				+ ", tradeQty=" + tradeQty + ", tradePrice=" + tradePrice + ", execType=" + execType + "]";
+	}
+
 	private int orderId;
 	private int userId;
 	private int contrUserId;
@@ -23,9 +29,13 @@ public class ExecutionReport {
 		userId = order.getUserId();
 		this.execType = execType;
 	}
-	public ExecutionReport(ExecutionReportType execType) {
+
+	 ExecutionReport(ExecutionReportType execType) {
 		this.execType = execType;
 	}
+
+	public ExecutionReport() {
+	};
 
 	public int getOrderId() {
 		return orderId;
