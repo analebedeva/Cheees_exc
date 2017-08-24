@@ -12,7 +12,7 @@ public class Order {
 	private int sequenceNumber;
 	private SideType type;
 
-	Order(BigDecimal price, int qty, int userId, int orderId, int sqNum, SideType type) {
+	public Order(BigDecimal price, int qty, int userId, int orderId, int sqNum, SideType type) {
 		this.orderId = orderId;
 		this.price = price;
 		this.qty = qty;

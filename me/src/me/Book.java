@@ -11,7 +11,7 @@ public class Book {
 	private final int instrumentId;
 	private ReferenceData referenceData=new ReferenceData();
 
-	Book(int instrumentId, ReferenceData referenceData) {
+	public Book(int instrumentId, ReferenceData referenceData) {
 		this.instrumentId = instrumentId;
 		this.referenceData=referenceData;
 	}

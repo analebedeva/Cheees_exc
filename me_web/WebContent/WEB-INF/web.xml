@@ -9,12 +9,9 @@
     <welcome-file>default.htm</welcome-file>
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
-  
-   <listener>
-	<listener-class>
-             me_web.HelloWord
+  <listener>
+    <listener-class>
+            me_web.Data
         </listener-class>
-   </listener>
-   
-   
+  </listener>
 </web-app>

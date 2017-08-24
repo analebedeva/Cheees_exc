@@ -2,13 +2,14 @@ package me;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class ME implements Runnable {
 	Map<Integer, Book> books = new HashMap<>();
-	public static Queue<ExecutionReport> reports = new PriorityBlockingQueue<>();
-	public static Queue<Request> requests = new PriorityBlockingQueue<>();
+	public static BlockingQueue<ExecutionReport> reports = new PriorityBlockingQueue<>();
+	public static BlockingQueue<Request> requests = new PriorityBlockingQueue<>();
 	boolean stop = false;
 
 	public void process(Request request) {
@@ -19,18 +20,18 @@ public class ME implements Runnable {
 			reports.offer(new ExecutionReport(ExecutionReportType.REJECTED));
 	}
 
-	synchronized void read() throws InterruptedException {
+	void read() throws InterruptedException  {
 		while (!stop) {
-			while (requests.size() > 0) {
-				process(requests.poll());
+			Request req = requests.poll(10,TimeUnit.MILLISECONDS);
+			if(req!=null)
+			{
+				process(req);
 			}
-			wait();
 		}
 	}
 
-	synchronized public void write(Request request) {
+	public static void write(Request request) {
 		requests.offer(request);
-		notify();
 	}
 
 	@Override
